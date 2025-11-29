@@ -15,4 +15,6 @@ jobs:
                   distribution: "temurin" # See 'Supported distributions' for available options
                   java-version: "21"
             - name: Build the package
+              shell: bash
               run: mvn clean package
+        

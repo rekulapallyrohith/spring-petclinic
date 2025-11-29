@@ -16,5 +16,5 @@ jobs:
                   java-version: "21"
             - name: Build the package
               shell: bash
-              run: mvn clean package
+              run: mvn package
         

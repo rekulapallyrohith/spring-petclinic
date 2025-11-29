@@ -1,0 +1,18 @@
+name: Manual-Maven
+on:
+    pull_request:
+        branches:
+            - main
+jobs:
+    manual:
+        runs-on: ubuntu-24.04
+        steps:
+            - name: checkout
+              uses: actions/checkout@v5
+            - name: setup eclipse temurin
+              uses: actions/setup-java@v5
+              with:
+                  distribution: "temurin" # See 'Supported distributions' for available options
+                  java-version: "21"
+            - name: Build the package
+              run: mvn clean package

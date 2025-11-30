@@ -26,7 +26,8 @@ jobs:
                   distribution: "temurin" # See 'Supported distributions' for available options
                   java-version: ${{matrix.java}}
                   cache: maven
-            - name: Build the package
+            - id: build
+              name: Build the package
               shell: bash
               run: mvn '${{vars.GOAL}}'
             - name: Publish Test Results
@@ -38,3 +39,13 @@ jobs:
               with:
                   name: spring-petclinic-${{matrix.java}}.jar
                   path: "**/target/*.jar"
+            
+            - name: send email on failure
+              if: failure()
+              run: echo "everything seems problematic"
+              
+            - name: send email on success
+              if: ${{steps.build.outcome == 'success'}}
+              run: echo "everything seems fine"
+
+              

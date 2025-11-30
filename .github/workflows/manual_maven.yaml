@@ -3,6 +3,7 @@ on:
     pull_request:
         branches:
             - main
+    workflow_dispatch: 
 jobs:
     manual:
         runs-on: ubuntu-24.04
@@ -16,5 +17,4 @@ jobs:
                   java-version: "21"
             - name: Build the package
               shell: bash
-              run: mvn package
-        
+              run: mvn '${{vars.GOAL}}'       

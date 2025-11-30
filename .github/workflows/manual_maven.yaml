@@ -13,10 +13,10 @@ jobs:
     manual:
         runs-on: ubuntu-latest
         strategy:
-          fail-fast: false
-          matrix:
-            java: [17,21]
-            # os: ['ubuntu-24.04', 'Windows']
+            fail-fast: false
+            matrix:
+                java: [17, 21]
+                # os: ['ubuntu-24.04', 'Windows']
         steps:
             - name: checkout
               uses: actions/checkout@v5
@@ -39,13 +39,31 @@ jobs:
               with:
                   name: spring-petclinic-${{matrix.java}}.jar
                   path: "**/target/*.jar"
-            
+
             - name: send email on failure
               if: failure()
               run: echo "everything seems problematic"
-              
+
             - name: send email on success
               if: ${{steps.build.outcome == 'success'}}
-              run: echo "everything seems fine"
+              uses: dawidd6/action-send-mail@v3
+              with:
+                  server_address: sandbox.smtp.mailtrap.io
+                  server_port: 587
 
-              
+                  # Enable below only if your SMTP needs TLS
+                  secure: true
+
+                  username: 6eddd344cf99f7
+                  password: 7a1891a921053b
+
+                  subject: "GitHub Action Notification"
+                  to: "sandbox.smtp.mailtrap.io"
+                  from: "rekulapallyrohith@gmail.com"
+                  body: |
+                      Hello,
+
+                      This is an automated email from GitHub Actions.
+
+                      Regards,
+                      GitHub CI

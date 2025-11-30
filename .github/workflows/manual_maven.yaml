@@ -11,7 +11,12 @@ permissions:
 
 jobs:
     manual:
-        runs-on: ubuntu-24.04
+        runs-on: ubuntu-latest
+        strategy:
+          fail-fast: false
+          matrix:
+            java: [17,21]
+            # os: ['ubuntu-24.04', 'Windows']
         steps:
             - name: checkout
               uses: actions/checkout@v5
@@ -19,7 +24,7 @@ jobs:
               uses: actions/setup-java@v5
               with:
                   distribution: "temurin" # See 'Supported distributions' for available options
-                  java-version: "21"
+                  java-version: ${{matrix.java}}
                   cache: maven
             - name: Build the package
               shell: bash
@@ -31,5 +36,5 @@ jobs:
                       **/target/surefire-reports/*.xml
             - uses: actions/upload-artifact@v4
               with:
-                  name: spring-petclinic-jar
+                  name: spring-petclinic-${{matrix.java}}.jar
                   path: "**/target/*.jar"

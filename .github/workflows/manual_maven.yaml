@@ -18,34 +18,40 @@ jobs:
                 java: [17, 21]
                 # os: ['ubuntu-24.04', 'Windows']
         steps:
-            - name: checkout
+            - id: step1
+              name: checkout
               uses: actions/checkout@v5
-            - name: setup eclipse temurin
+            - id: step2
+              name: setup eclipse temurin
               uses: actions/setup-java@v5
               with:
                   distribution: "temurin" # See 'Supported distributions' for available options
                   java-version: ${{matrix.java}}
                   cache: maven
-            - id: build
+            - id: step3
               name: Build the package
-              shell: bash
+              shell: bash 
               run: mvn '${{vars.GOAL}}'
-            - name: Publish Test Results
+            - id: step4
+              name: Publish Test Results
               uses: EnricoMi/publish-unit-test-result-action@v2
               with:
                   files: |
                       **/target/surefire-reports/*.xml
-            - uses: actions/upload-artifact@v4
+            - id: step5
+              uses: actions/upload-artifact@v4
               with:
                   name: spring-petclinic-${{matrix.java}}.jar
                   path: "**/target/*.jar"
 
-            - name: send email on failure
+            - id: step6
+              name: send email on failure
               if: failure()
               run: echo "everything seems problematic"
 
-            - name: send email on success
-              if: ${{steps.build.outcome == 'success'}}
+            - id: step7
+              name: send email on success
+              if: ${{steps.step3.outcome == 'success'}}
               uses: dawidd6/action-send-mail@v3
               with:
                   server_address: sandbox.smtp.mailtrap.io

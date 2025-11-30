@@ -52,7 +52,7 @@ jobs:
                   server_port: 587
 
                   # Enable below only if your SMTP needs TLS
-                  secure: true
+                  secure: false
 
                   username: 6eddd344cf99f7
                   password: 7a1891a921053b

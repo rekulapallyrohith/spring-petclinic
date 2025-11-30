@@ -4,6 +4,11 @@ on:
         branches:
             - main
     workflow_dispatch:
+permissions:
+    contents: read
+    checks: write
+    pull-requests: write
+
 jobs:
     manual:
         runs-on: ubuntu-24.04
@@ -15,6 +20,7 @@ jobs:
               with:
                   distribution: "temurin" # See 'Supported distributions' for available options
                   java-version: "21"
+                  cache: maven
             - name: Build the package
               shell: bash
               run: mvn '${{vars.GOAL}}'

@@ -58,7 +58,7 @@ jobs:
                   password: 7a1891a921053b
 
                   subject: "GitHub Action Notification"
-                  to: "sandbox.smtp.mailtrap.io"
+                  to: "inbox@mailtrap.io"
                   from: "rekulapallyrohith@gmail.com"
                   body: |
                       Hello,

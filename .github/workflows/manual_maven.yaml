@@ -33,7 +33,7 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: ${{steps.step2.outputs.version}}
+          languages: ${{steps.step2.outputs.java-version}}
       - id: step3
         name: Build the package
         shell: bash

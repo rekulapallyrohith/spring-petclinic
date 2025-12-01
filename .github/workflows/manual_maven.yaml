@@ -15,7 +15,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                java: [17, 21]
+                java: [21]
                 # os: ['ubuntu-24.04', 'Windows']
         steps:
             - id: step1

@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 class WelcomeController {
 
-	@GetMapping("/message")
-	public String message() {
+	@GetMapping("/")
+	public String welcome() {
 		return "welcome";
 	}
 

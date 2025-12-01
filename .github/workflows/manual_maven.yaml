@@ -1,75 +1,81 @@
 name: Manual-Maven
 on:
-    pull_request:
-        branches:
-            - main
-    workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
 permissions:
-    contents: read
-    checks: write
-    pull-requests: write
+  contents: read
+  checks: write
+  pull-requests: write
 
 jobs:
-    manual:
-        runs-on: ubuntu-latest
-        strategy:
-            fail-fast: false
-            matrix:
-                java: [21]
-                # os: ['ubuntu-24.04', 'Windows']
-        steps:
-            - id: step1
-              name: checkout
-              uses: actions/checkout@v5
-            - id: step2
-              name: setup eclipse temurin
-              uses: actions/setup-java@v5
-              with:
-                  distribution: "temurin" # See 'Supported distributions' for available options
-                  java-version: ${{matrix.java}}
-                  cache: maven
-            - id: step3
-              name: Build the package
-              shell: bash 
-              run: mvn '${{vars.GOAL}}'
-            - id: step4
-              name: Publish Test Results
-              uses: EnricoMi/publish-unit-test-result-action@v2
-              with:
-                  files: |
-                      **/target/surefire-reports/*.xml
-            - id: step5
-              uses: actions/upload-artifact@v4
-              with:
-                  name: spring-petclinic-${{matrix.java}}.jar
-                  path: "**/target/*.jar"
+  manual:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [21]
+        # os: ['ubuntu-24.04', 'Windows']
+    steps:
+      - id: step1
+        name: checkout
+        uses: actions/checkout@v5
+      - id: step2
+        name: setup eclipse temurin
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin" # See 'Supported distributions' for available options
+          java-version: ${{matrix.java}}
+          cache: maven
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.java }}
+      - id: step3
+        name: Build the package
+        shell: bash
+        run: mvn '${{vars.GOAL}}'
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+      - id: step4
+        name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: |
+            **/target/surefire-reports/*.xml
+      - id: step5
+        uses: actions/upload-artifact@v4
+        with:
+          name: spring-petclinic-${{matrix.java}}.jar
+          path: "**/target/*.jar"
 
-            - id: step6
-              name: send email on failure
-              if: failure()
-              run: echo "everything seems problematic"
+      - id: step6
+        name: send email on failure
+        if: failure()
+        run: echo "everything seems problematic"
 
-            - id: step7
-              name: send email on success
-              if: ${{steps.step3.outcome == 'success'}}
-              uses: dawidd6/action-send-mail@v3
-              with:
-                  server_address: sandbox.smtp.mailtrap.io
-                  server_port: 587
+      - id: step7
+        name: send email on success
+        if: ${{steps.step3.outcome == 'success'}}
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: sandbox.smtp.mailtrap.io
+          server_port: 587
 
-                  # Enable below only if your SMTP needs TLS
-                  secure: false
+          # Enable below only if your SMTP needs TLS
+          secure: false
 
-                  username: 6eddd344cf99f7
-                  password: 7a1891a921053b
+          username: 6eddd344cf99f7
+          password: 7a1891a921053b
 
-                  subject: "GitHub Action Notification"
-                  to: "inbox@mailtrap.io"
-                  from: "rekulapallyrohith@gmail.com"
-                  body: |
-                      Hello,
+          subject: "GitHub Action Notification"
+          to: "inbox@mailtrap.io"
+          from: "rekulapallyrohith@gmail.com"
+          body: |
+            Hello,
 
-                      This is an automated email from GitHub Actions.
+            This is an automated email from GitHub Actions.
 
-                      Regards,
-                      GitHub CI
+            Regards,
+            GitHub CI

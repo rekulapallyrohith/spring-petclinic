@@ -8,6 +8,8 @@ permissions:
   contents: read
   checks: write
   pull-requests: write
+  security-events: write
+  actions: read
 
 jobs:
   manual:
@@ -31,7 +33,7 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: java
+          languages: ${{steps.step2.outputs.version}}
       - id: step3
         name: Build the package
         shell: bash

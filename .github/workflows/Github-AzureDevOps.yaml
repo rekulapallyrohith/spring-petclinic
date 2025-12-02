@@ -44,7 +44,7 @@ jobs:
             - id: step3
               name: Build the package
               shell: bash
-              run: mvn -B -DskipTests package
+              run: mvn '${{vars.GOAL}}'
 
             # ---------- CODEQL ANALYSIS ----------
             - name: Perform CodeQL Analysis

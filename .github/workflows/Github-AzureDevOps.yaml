@@ -1,0 +1,122 @@
+name: Manual-Maven
+
+on:
+    pull_request:
+        branches:
+            - main
+    workflow_dispatch:
+
+permissions:
+    contents: read
+    checks: write
+    pull-requests: write
+    security-events: write
+    actions: read
+
+jobs:
+    manual:
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                java: [21]
+
+        steps:
+            - id: step1
+              name: Checkout
+              uses: actions/checkout@v4
+
+            - id: step2
+              name: Setup Eclipse Temurin
+              uses: actions/setup-java@v4
+              with:
+                  distribution: "temurin"
+                  java-version: ${{ matrix.java }}
+                  cache: maven
+
+            # ---------- CODEQL ----------
+            - name: Initialize CodeQL
+              uses: github/codeql-action/init@v3
+              with:
+                  languages: java
+
+            # ---------- BUILD ----------
+            - id: step3
+              name: Build the package
+              shell: bash
+              run: mvn -B -DskipTests package
+
+            # ---------- CODEQL ANALYSIS ----------
+            - name: Perform CodeQL Analysis
+              uses: github/codeql-action/analyze@v3
+
+            # ---------- TEST RESULTS ----------
+            - id: step4
+              name: Publish Test Results
+              uses: EnricoMi/publish-unit-test-result-action@v2
+              with:
+                  files: "**/target/surefire-reports/*.xml"
+
+            # ---------- UPLOAD ARTIFACT (GitHub) ----------
+            - id: step5
+              uses: actions/upload-artifact@v4
+              with:
+                  name: spring-petclinic-${{ matrix.java }}.jar
+                  path: "**/target/*.jar"
+
+            # ---------- CONFIGURE MAVEN FOR AZURE ARTIFACTS ----------
+            - name: Configure Maven for Azure Artifacts
+              env:
+                  ORG: "Rohith-17-Organization"
+                  PROJECT: "spring-petclinic"
+                  FEED: "spring-petclinic"
+                  PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+              run: |
+                  mkdir -p ~/.m2
+                  cat > ~/.m2/settings.xml <<EOF
+                  <settings>
+                    <servers>
+                      <server>
+                        <id>azure-artifacts</id>
+                        <username>azure</username>
+                        <password>${PAT}</password>
+                      </server>
+                    </servers>
+                  </settings>
+                  EOF
+
+            # ---------- PUBLISH ARTIFACT TO AZURE ARTIFACTS ----------
+            - name: Publish JAR to Azure Artifacts
+              env:
+                  ORG: "Rohith-17-Organization"
+                  PROJECT: "spring-petclinic"
+                  FEED: "spring-petclinic"
+              run: |
+                  mvn deploy -DskipTests \
+                    -DaltDeploymentRepository=azure-artifacts::default::https://pkgs.dev.azure.com/${ORG}/${PROJECT}/_packaging/${FEED}/maven/v1
+
+            # ---------- EMAIL ON FAILURE ----------
+        #   - id: step6
+        #     name: Send email on failure
+        #     if: failure()
+        #     run: echo "Build Failed!"
+
+        # ---------- EMAIL ON SUCCESS ----------
+        #   - id: step7
+        #     name: Send email on success
+        #     if: ${{ steps.step3.outcome == 'success' }}
+        #     uses: dawidd6/action-send-mail@v3
+        #     with:
+        #       server_address: sandbox.smtp.mailtrap.io
+        #       server_port: 587
+        #       secure: false
+        #       username: 6eddd344cf99f7
+        #       password: 7a1891a921053b
+        #       subject: "GitHub Action Notification"
+        #       to: "inbox@mailtrap.io"
+        #       from: "rekulapallyrohith@gmail.com"
+        #       body: |
+        #         Hello,
+        #         Your spring-petclinic CI run has completed successfully.
+        #         Regards,
+        #         GitHub CI

@@ -25,8 +25,8 @@ jobs:
           languages: java
       - name: Build
         uses: ./.github/actions/maven-build
-        # with:
-        #   goal: package
+        with:
+          goal: package
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
       - id: step4

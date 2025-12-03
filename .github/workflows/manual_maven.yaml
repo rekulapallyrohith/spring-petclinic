@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   call-reusable:
-    uses: ./.github/workflows/reusable-mvn.yaml
+    uses: rekulapallyrohith/reusable-dec25/.github/workflows/reusable-mvn.yaml@v1
     with:
       java_version: '21'
       agent: 'ubuntu-latest'

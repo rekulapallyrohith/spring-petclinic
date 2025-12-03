@@ -12,72 +12,8 @@ permissions:
   actions: read
 
 jobs:
-  manual:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        java: [21]
-        # os: ['ubuntu-24.04', 'Windows']
-    steps:
-      - id: step1
-        name: checkout
-        uses: actions/checkout@v5
-      - id: step2
-        name: setup eclipse temurin
-        uses: actions/setup-java@v5
-        with:
-          distribution: "temurin" # See 'Supported distributions' for available options
-          java-version: ${{matrix.java}}
-          cache: maven
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: ${{steps.step2.outputs.java-version}}
-      - id: step3
-        name: Build the package
-        shell: bash
-        run: mvn '${{vars.GOAL}}'
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-      - id: step4
-        name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        with:
-          files: |
-            **/target/surefire-reports/*.xml
-      - id: step5
-        uses: actions/upload-artifact@v4
-        with:
-          name: spring-petclinic-${{matrix.java}}.jar
-          path: "**/target/*.jar"
-
-      - id: step6
-        name: send email on failure
-        if: failure()
-        run: echo "everything seems problematic"
-
-      - id: step7
-        name: send email on success
-        if: ${{steps.step3.outcome == 'success'}}
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: sandbox.smtp.mailtrap.io
-          server_port: 587
-
-          # Enable below only if your SMTP needs TLS
-          secure: false
-
-          username: 6eddd344cf99f7
-          password: 7a1891a921053b
-
-          subject: "GitHub Action Notification"
-          to: "inbox@mailtrap.io"
-          from: "rekulapallyrohith@gmail.com"
-          body: |
-            Hello,
-
-            This is an automated email from GitHub Actions.
-
-            Regards,
-            GitHub CI
+  call-reusable:
+    uses: ./.github/workflows/reusable-mvn.yaml
+    with:
+      java_version: '21'
+      agent: 'ubuntu-latest'

@@ -1,0 +1,13 @@
+name: Build using maven
+description: Build the package using maven
+inputs:
+  goal:
+    required: false
+    description: setting goal
+    default: 'package'
+runs:
+  using: composite
+  steps:
+    - name: Build package
+      shell: bash
+      run: mvn ${{inputs.goal}}
